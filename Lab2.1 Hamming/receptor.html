@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Receptor de Hamming</title>
+</head>
+<body>
+    <h1>Receptor de Hamming</h1>
+    <label for="receivedCode">Ingrese el código de Hamming recibido:</label>
+    <input type="text" id="receivedCode" />
+    <button onclick="decodificar()">Decodificar</button>
+
+    <div id="result"></div>
+    <div id="informationBits"></div>
+
+    <script>
+        function decodeHammingCode(receivedCode) {
+            const n = receivedCode.length;
+            let m = 1;
+            while (Math.pow(2, m) < n + m + 1) {
+                m++;
+            }
+
+            // Calcular los bits de paridad recibidos
+            const receivedParityBits = [];
+            for (let i = 0; i < m; i++) {
+                const parityBitIndex = Math.pow(2, i) - 1;
+                let xorVal = 0;
+                for (let j = 0; j < n + m; j++) {
+                    if (((j + 1) & (1 << i)) !== 0) {
+                        xorVal ^= receivedCode[j];
+                    }
+                }
+                receivedParityBits.push(xorVal);
+            }
+
+            // Verificar si hay errores en el código recibido
+            let errorPosition = 0;
+            for (let i = 0; i < m; i++) {
+                if (receivedParityBits[i] !== 0) {
+                    errorPosition += Math.pow(2, i);
+                }
+            }
+
+            // Corregir el error (si existe) y obtener los bits de datos
+            const correctedCode = [...receivedCode];
+            if (errorPosition !== 0) {
+                correctedCode[errorPosition - 1] ^= 1;
+            }
+            const dataBits = [];
+            let j = 0;
+            for (let i = 0; i < n + m; i++) {
+                if ((i & (i + 1)) !== 0) {
+                    dataBits.push(correctedCode[j]);
+                    j++;
+                }
+            }
+
+            return { dataBits, errorPosition };
+        }
+
+        function decodificar() {
+            const receivedCodeStr = document.getElementById("receivedCode").value;
+            const receivedCode = receivedCodeStr.split("").map(Number);
+
+            const { dataBits, errorPosition } = decodeHammingCode(receivedCode);
+
+            if (errorPosition === 0) {
+                document.getElementById("result").innerText =
+                    "No se encontraron errores.\nDatos recibidos: " + dataBits.join(", ");
+
+                const informationBits = dataBits.filter((bit, index) => ((index + 1) & index) !== 0);
+                document.getElementById("informationBits").innerText =
+                    "Trama Original: " + informationBits.join(", ");
+            } else {
+                document.getElementById("result").innerText =
+                    "Se encontró un error en la posición: " + errorPosition +
+                    "\nDatos recibidos con el error corregido: " + dataBits.join(", ");
+                document.getElementById("informationBits").innerText = "";
+            }
+        }
+    </script>
+</body>
+</html>
