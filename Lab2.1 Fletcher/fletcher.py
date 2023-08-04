@@ -14,8 +14,8 @@ def calculate_fletcher_checksum(data, block_size):
     return data + checksum_bits
 
 # Emisor
-input_data = input("Ingresa la trama en binario (e.g., '110101'): ")
-block_size = int(input("Ingresa el tamaño del bloque (8, 16 o 32): "))
+input_data = input("Ingresa la trama en binario: ")
+block_size = int(input("Ingresa el tamaño del bloque (8, 16, 32): "))
 
 result = calculate_fletcher_checksum(input_data, block_size)
 print("Trama enviada:", result)
