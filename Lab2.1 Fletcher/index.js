@@ -44,7 +44,7 @@ const rl = readline.createInterface({
 
 // Receptor
 rl.question("Ingresa la cadena mostrada por el emisor: ", (input_data) => {
-  rl.question("Ingresa el tamaño del bloque (8, 16 o 32): ", (block_size) => {
+  rl.question("Ingresa el tamaño del bloque (8, 16, 32): ", (block_size) => {
     const validation_result = validate_fletcher_checksum(input_data, parseInt(block_size, 10));
     if (validation_result.valid) {
       console.log("No se detectaron errores. Trama recibida:", validation_result.corrected_data);
