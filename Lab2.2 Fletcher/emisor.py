@@ -87,7 +87,7 @@ def run_tests(num_tests):
     return test_results
 
 # Ejecutar pruebas
-num_tests = 100  # Número de pruebas a realizar
+num_tests = 100000  # Número de pruebas a realizar
 test_results = run_tests(num_tests)
 
 # Convertir los resultados en un DataFrame de Pandas
