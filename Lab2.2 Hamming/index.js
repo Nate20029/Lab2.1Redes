@@ -73,6 +73,15 @@ function asciiToText(asciiValues) {
     return text;
 }
 
+let numCodesWithError = 0;
+let numCodesWithoutError = 0;
+
+// Función para enviar estadísticas al emisor
+function sendStats(socket) {
+    const stats = `${numCodesWithError},${numCodesWithoutError}\n`;
+    socket.write(stats);
+}
+
 // Crear un servidor TCP para recibir el código de Hamming con ruido
 const server = net.createServer((socket) => {
     console.log('Cliente conectado');
@@ -85,28 +94,38 @@ const server = net.createServer((socket) => {
     socket.on('end', () => {
         console.log('\nSecuencia de código de Hamming con ruido recibida:');
         console.log(hammingCodeWithNoise);
-    
+
         const receivedCode = hammingCodeWithNoise.split('').map(Number);
-    
+
         // Detectar y corregir errores en el código de Hamming
         const correctedCode = detectAndCorrectErrors(receivedCode);
         console.log('\nSecuencia de código de Hamming corregida:');
-        console.log((correctedCode.join('')));
-    
+        console.log(correctedCode.join(''));
+
         // Decodificar el código de Hamming a binario
         const decodedBinary = decodeHammingToBinary(correctedCode);
         console.log('\nCódigo de Hamming decodificado a binario:');
         console.log(decodedBinary.join(''));
-    
+
         // Convertir binario a valores ASCII
         const asciiValues = binaryToASCII(decodedBinary);
         console.log('\nValores ASCII:');
         console.log(asciiValues.join(', '));
-    
+
         // Convertir valores ASCII a texto
         const decodedText = asciiToText(asciiValues);
         console.log('\nTexto decodificado:');
         console.log(decodedText);
+
+        // Actualizar estadísticas
+        if (correctedCode.toString() !== receivedCode.toString()) {
+            numCodesWithError++;
+        } else {
+            numCodesWithoutError++;
+        }
+
+        // Enviar estadísticas al Emisor
+        sendStats(socket);
     });
 });
 
